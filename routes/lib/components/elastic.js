@@ -19,7 +19,7 @@ function Elastic(HOST, USERNAME, PASSWORD, INDEX) {
       const tempIndex = INDEX + "-temp-" + Math.floor(Math.random() * 10000);
 
       // Check if the index to initialize already exists
-      const indexExists = await fetch(`${HOST}/${INDEX}`, {
+      const indexExists = await fetch(`http:${HOST}/${INDEX}`, {
         method: "HEAD",
         headers: {
           Authorization,
@@ -42,7 +42,7 @@ function Elastic(HOST, USERNAME, PASSWORD, INDEX) {
 
         if (dataExists) {
           // Move data to temporary index
-          await fetch(`${HOST}/_reindex`, {
+          await fetch(`http:${HOST}/_reindex`, {
             method: "POST",
             headers: {
               Authorization,
@@ -66,7 +66,7 @@ function Elastic(HOST, USERNAME, PASSWORD, INDEX) {
 
       if (dataExists) {
         // Move data back from the temporary index
-        await fetch(`${HOST}/_reindex`, {
+        await fetch(`http:${HOST}/_reindex`, {
           method: "POST",
           headers: {
             Authorization,
@@ -79,7 +79,7 @@ function Elastic(HOST, USERNAME, PASSWORD, INDEX) {
         }).then(callback);
 
         // Delete temporary index
-        await fetch(`${HOST}/${tempIndex}`, {
+        await fetch(`http:${HOST}/${tempIndex}`, {
           method: "DELETE",
           headers: {
             Authorization,
@@ -92,6 +92,7 @@ function Elastic(HOST, USERNAME, PASSWORD, INDEX) {
     } catch (err) {
       console.error("Initializing index has failed:", INDEX);
       console.error(err);
+      throw new Error(err);
     }
   };
 
@@ -115,7 +116,9 @@ function Elastic(HOST, USERNAME, PASSWORD, INDEX) {
       }
     }
 
-    return fetch(`${HOST}/${INDEX}/${path}`, options).then(callback);
+    console.log(`http://${HOST}/${INDEX}/${path}`);
+
+    return fetch(`http://${HOST}/${INDEX}/${path}`, options).then(callback);
   };
 }
 
